@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-TKKZS8E7BN"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-TKKZS8E7BN');
+  </script>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mortgage Offset Health Check</title>
@@ -64,7 +74,7 @@
       <label>Average Home Loan Balance</label>
       <div class="input-wrapper">
         <span class="prefix">$</span>
-        <input type="number" id="loanBalance" value="600000" step="1000">
+        <input type="text" inputmode="decimal" id="loanBalance" value="600,000">
       </div>
     </div>
 
@@ -72,7 +82,7 @@
       <label>Average Offset Account Balance</label>
       <div class="input-wrapper">
         <span class="prefix">$</span>
-        <input type="number" id="offsetBalance" value="50000" step="1000">
+        <input type="text" inputmode="decimal" id="offsetBalance" value="50,000">
       </div>
     </div>
 
@@ -80,7 +90,7 @@
       <label>Interest Rate (% p.a.)</label>
       <div class="input-wrapper">
         <span class="prefix" style="left:auto; right:12px">%</span>
-        <input type="number" id="interestRate" value="6.25" step="0.01" class="no-prefix" style="padding-right: 28px;">
+        <input type="text" inputmode="decimal" id="interestRate" value="6.25" class="no-prefix" style="padding-right: 28px;">
       </div>
     </div>
 
@@ -97,7 +107,7 @@
       <label>Actual Interest Charged (From Bank App)</label>
       <div class="input-wrapper">
         <span class="prefix">$</span>
-        <input type="number" id="actualCharged" value="2934.93" step="0.01">
+        <input type="text" inputmode="decimal" id="actualCharged" value="2,934.93">
       </div>
     </div>
 
@@ -140,11 +150,24 @@
     return new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD' }).format(num);
   }
 
+  function parseFormattedNumber(val) {
+    if (!val) return 0;
+    return parseFloat(val.toString().replace(/,/g, '')) || 0;
+  }
+
+  function formatInputOnBlur(input) {
+    let raw = input.value.replace(/,/g, '');
+    if (raw === '' || isNaN(raw)) return;
+    let parts = raw.split('.');
+    parts[0] = Number(parts[0]).toLocaleString('en-AU');
+    input.value = parts.join('.');
+  }
+
   function calculate() {
-    const loan = parseFloat(document.getElementById('loanBalance').value) || 0;
-    const offset = parseFloat(document.getElementById('offsetBalance').value) || 0;
-    const rate = (parseFloat(document.getElementById('interestRate').value) || 0) / 100;
-    const actual = parseFloat(document.getElementById('actualCharged').value) || 0;
+    const loan = parseFormattedNumber(document.getElementById('loanBalance').value);
+    const offset = parseFormattedNumber(document.getElementById('offsetBalance').value);
+    const rate = parseFormattedNumber(document.getElementById('interestRate').value) / 100;
+    const actual = parseFormattedNumber(document.getElementById('actualCharged').value);
 
     const netBalance = Math.max(0, loan - offset);
     const expectedWithOffset = netBalance * (rate / 365) * selectedDays;
@@ -169,7 +192,6 @@
       return;
     }
 
-    // Tolerance thresholds (allow up to 4% deviation for balance fluctuations)
     const diffOffset = Math.abs(actual - expectedWithOffset);
     const diffFull = Math.abs(actual - expectedFull);
     const potentialSavings = expectedFull - expectedWithOffset;
@@ -192,8 +214,16 @@
     }
   }
 
+  const monetaryInputs = ['loanBalance', 'offsetBalance', 'actualCharged'];
+  
   document.querySelectorAll('input').forEach(input => {
     input.addEventListener('input', calculate);
+    if (monetaryInputs.includes(input.id)) {
+      input.addEventListener('blur', () => {
+        formatInputOnBlur(input);
+        calculate();
+      });
+    }
   });
 
   calculate();
