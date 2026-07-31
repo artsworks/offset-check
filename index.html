@@ -23,6 +23,7 @@
       --success: #22c55e;
       --danger: #ef4444;
       --warning: #f59e0b;
+      --info: #38bdf8;
       --border: #334155;
     }
 
@@ -40,11 +41,17 @@
     .checklist-item { display: flex; align-items: flex-start; gap: 10px; font-size: 0.85rem; color: var(--muted); margin-bottom: 8px; cursor: pointer; }
     .checklist-item input { width: 16px; height: 16px; margin-top: 2px; accent-color: var(--accent); cursor: pointer; }
 
+    details.app-guide { margin-top: 8px; font-size: 0.8rem; color: var(--muted); }
+    details.app-guide summary { cursor: pointer; color: var(--accent); font-weight: 600; outline: none; }
+    details.app-guide summary:focus { text-decoration: underline; }
+    .guide-content { margin-top: 8px; background: #162032; padding: 10px; border-radius: 6px; line-height: 1.5; border: 1px solid var(--border); }
+
     .input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     label { font-size: 0.85rem; font-weight: 600; color: var(--muted); }
     .input-wrapper { position: relative; display: flex; align-items: center; }
     .prefix { position: absolute; left: 12px; color: var(--muted); font-weight: 600; }
-    input[type="text"], select { width: 100%; padding: 10px 12px 10px 28px; background: #0f172a; border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 1rem; font-weight: 600; outline: none; }
+    input[type="text"], input[type="number"], select { width: 100%; padding: 10px 12px 10px 28px; background: #0f172a; border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 1rem; font-weight: 600; outline: none; }
     select { padding-left: 12px; }
     input:focus, select:focus { border-color: var(--accent); }
     input.no-prefix { padding-left: 12px; }
@@ -53,7 +60,8 @@
     .btn-day { background: #0f172a; border: 1px solid var(--border); color: var(--text); padding: 8px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
     .btn-day.active { background: var(--accent); border-color: var(--accent); }
 
-    .status-badge { padding: 16px; border-radius: 8px; text-align: center; margin-top: 12px; display: none; }
+    .status-badge { padding: 16px; border-radius: 8px; text-align: center; margin-top: 12px; }
+    .status-badge.info { background: rgba(56, 189, 248, 0.15); border: 1px solid var(--info); color: var(--info); }
     .status-badge.safe { background: rgba(34, 197, 94, 0.15); border: 1px solid var(--success); color: var(--success); }
     .status-badge.danger { background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger); color: var(--danger); }
     .status-badge.warning { background: rgba(245, 158, 11, 0.15); border: 1px solid var(--warning); color: var(--warning); }
@@ -100,11 +108,23 @@
         <input type="checkbox" id="chk3" checked disabled>
         <span><strong>Check #3:</strong> Account is receiving expected interest benefit (Math Check below).</span>
       </label>
+
+      <!-- App Guidance Collapsible -->
+      <details class="app-guide">
+        <summary>Where to verify setup/linking in your banking app?</summary>
+        <div class="guide-content">
+          • <strong>CBA:</strong> NetBank / App &gt; Select Home Loan &gt; View Details &gt; "Linked Offset Account".<br>
+          • <strong>ANZ:</strong> ANZ App &gt; Select Loan &gt; Account Details &gt; "Linked Accounts".<br>
+          • <strong>Westpac:</strong> Westpac App &gt; Home Loan &gt; Features &amp; Benefits &gt; "Linked Offset".<br>
+          • <strong>NAB:</strong> NAB App &gt; Select Home Loan &gt; "Offset Account Details".<br>
+          • <strong>Macquarie:</strong> Macquarie App &gt; Home Loan &gt; "Connected Accounts".
+        </div>
+      </details>
     </div>
 
-    <!-- Math Check Inputs -->
+    <!-- Inputs -->
     <div class="input-group">
-      <label>Average Home Loan Balance</label>
+      <label for="loanBalance">Average Home Loan Balance</label>
       <div class="input-wrapper">
         <span class="prefix">$</span>
         <input type="text" inputmode="decimal" id="loanBalance" value="600,000">
@@ -112,7 +132,7 @@
     </div>
 
     <div class="input-group">
-      <label>Average Offset Account Balance</label>
+      <label for="offsetBalance">Average Offset Account Balance</label>
       <div class="input-wrapper">
         <span class="prefix">$</span>
         <input type="text" inputmode="decimal" id="offsetBalance" value="50,000">
@@ -120,7 +140,7 @@
     </div>
 
     <div class="input-group">
-      <label>Interest Rate (% p.a.)</label>
+      <label for="interestRate">Interest Rate (% p.a.)</label>
       <div class="input-wrapper">
         <span class="prefix" style="left:auto; right:12px">%</span>
         <input type="text" inputmode="decimal" id="interestRate" value="6.25" class="no-prefix" style="padding-right: 28px;">
@@ -130,23 +150,52 @@
     <div class="input-group">
       <label>Statement Cycle Days</label>
       <div class="day-buttons">
-        <button class="btn-day" onclick="setDays(28, this)">28 Days</button>
-        <button class="btn-day" onclick="setDays(30, this)">30 Days</button>
-        <button class="btn-day active" onclick="setDays(31, this)">31 Days</button>
+        <button type="button" class="btn-day" aria-pressed="false" onclick="setDays(28, this)">28 Days</button>
+        <button type="button" class="btn-day" aria-pressed="false" onclick="setDays(30, this)">30 Days</button>
+        <button type="button" class="btn-day active" aria-pressed="true" onclick="setDays(31, this)">31 Days</button>
       </div>
     </div>
 
+    <!-- Math Controls (Tolerance, Year Basis, Mid-Cycle Active Days) -->
+    <details class="app-guide" style="margin-bottom: 14px;">
+      <summary>Advanced Calculation Knobs (Tolerance, Leap Year, Mid-Cycle Linking)</summary>
+      <div class="guide-content" style="background: #0f172a; display: flex; flex-direction: column; gap: 10px;">
+        <div class="grid-2">
+          <div>
+            <label for="toleranceBand">Tolerance Buffer</label>
+            <select id="toleranceBand" onchange="calculate()">
+              <option value="0.05">Strict (5%)</option>
+              <option value="0.15" selected>Standard (15%)</option>
+              <option value="0.25">Relaxed (25%)</option>
+            </select>
+          </div>
+          <div>
+            <label for="yearBasis">Day-Count Basis</label>
+            <select id="yearBasis" onchange="calculate()">
+              <option value="365" selected>365 Days (Standard)</option>
+              <option value="366">366 Days (Leap Year)</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label for="activeDays">Days Offset Active in Cycle (Mid-Month Linking)</label>
+          <input type="number" id="activeDays" value="31" class="no-prefix" min="1" max="31">
+        </div>
+      </div>
+    </details>
+
     <div class="input-group" style="margin-top: 8px;">
-      <label>Actual Interest Charged (From Bank App)</label>
+      <label for="actualCharged">Actual Interest Charged (From Bank App)</label>
       <div class="input-wrapper">
         <span class="prefix">$</span>
         <input type="text" inputmode="decimal" id="actualCharged" value="2,934.93">
       </div>
     </div>
 
-    <div id="statusBadge" class="status-badge">
-      <div id="badgeTitle" class="badge-title"></div>
-      <div id="badgeDesc" class="badge-desc"></div>
+    <!-- Status Region -->
+    <div id="statusBadge" class="status-badge info" aria-live="polite">
+      <div id="badgeTitle" class="badge-title">CHECKLIST PENDING</div>
+      <div id="badgeDesc" class="badge-desc">Complete checks #1 &amp; #2 above to run full audit.</div>
     </div>
 
     <table class="results-table">
@@ -173,7 +222,7 @@
     </table>
 
     <!-- Action / Complaint Box on ALERT -->
-    <div id="actionBox" class="action-box">
+    <div id="actionBox" class="action-box" aria-live="polite">
       <div class="action-title">Potential Failure Detected — Take Action</div>
       <p style="margin-bottom: 8px;">Select failure scenario identified in ASIC REP 837:</p>
       <select id="failureType" onchange="updateMessageTemplate()">
@@ -183,7 +232,7 @@
       </select>
       
       <div class="template-area" id="templateText"></div>
-      <button class="btn-copy" onclick="copyTemplate()">Copy Message to Clipboard</button>
+      <button type="button" class="btn-copy" onclick="copyTemplate()">Copy Message to Clipboard</button>
 
       <div class="resources">
         <strong>Next Steps:</strong> Submit via your bank's secure message app. If unresolved within 30 days, lodge a free dispute with <a href="https://www.afca.org.au/" target="_blank">AFCA</a> or review <a href="https://moneysmart.gov.au/home-loans/mortgage-offset-accounts" target="_blank">Moneysmart Guidance</a>.
@@ -191,7 +240,7 @@
     </div>
 
     <div class="disclosure-paragraph">
-      <strong>Note & Limitations:</strong> This audit uses single-month average snapshot estimates. Exact daily bank calculations may vary due to mid-cycle balance changes, multiple linked offset accounts, non-standard statement cut-off dates, or leap-year day counts ($365$ vs $366$). This tool runs 100% locally in your browser. Anonymous usage metrics are tracked via Google Analytics for performance logging.
+      <strong>Note &amp; Limitations:</strong> This audit uses single-month average snapshot estimates. Exact daily bank calculations may vary due to mid-cycle balance changes, multiple linked offset accounts, non-standard statement cut-off dates, or leap-year day counts ($365$ vs $366$). This tool runs 100% locally in your browser. Anonymous usage metrics are tracked via Google Analytics for performance logging.
     </div>
   </div>
 </div>
@@ -201,8 +250,20 @@
 
   function setDays(days, btn) {
     selectedDays = days;
-    document.querySelectorAll('.btn-day').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.btn-day').forEach(b => {
+      b.classList.remove('active');
+      b.setAttribute('aria-pressed', 'false');
+    });
     btn.classList.add('active');
+    btn.setAttribute('aria-pressed', 'true');
+    
+    // Sync active days input if user hasn't custom modified it
+    const activeDaysInput = document.getElementById('activeDays');
+    if (activeDaysInput) {
+      activeDaysInput.value = days;
+      activeDaysInput.max = days;
+    }
+
     calculate();
   }
 
@@ -255,9 +316,16 @@
     const rate = parseFormattedNumber(document.getElementById('interestRate').value) / 100;
     const actual = parseFormattedNumber(document.getElementById('actualCharged').value);
 
-    const netBalance = Math.max(0, loan - offset);
-    const expectedWithOffset = netBalance * (rate / 365) * selectedDays;
-    const expectedFull = loan * (rate / 365) * selectedDays;
+    const toleranceRatio = parseFloat(document.getElementById('toleranceBand').value) || 0.15;
+    const yearBasis = parseInt(document.getElementById('yearBasis').value, 10) || 365;
+    const activeDays = Math.min(selectedDays, Math.max(0, parseInt(document.getElementById('activeDays').value, 10) || selectedDays));
+
+    // Mid-cycle / late linking formula:
+    // Interest = Loan interest for full period minus offset savings for active days
+    const dailyFullInterest = loan * (rate / yearBasis);
+    const dailyOffsetSavings = offset * (rate / yearBasis);
+    const expectedWithOffset = Math.max(0, (dailyFullInterest * selectedDays) - (dailyOffsetSavings * activeDays));
+    const expectedFull = dailyFullInterest * selectedDays;
 
     document.getElementById('expOffset').innerText = formatAUD(expectedWithOffset);
     document.getElementById('expFull').innerText = formatAUD(expectedFull);
@@ -274,22 +342,21 @@
     const savedEl = document.getElementById('savedAmount');
     const actionBox = document.getElementById('actionBox');
 
-    badge.style.display = 'block';
     badge.className = 'status-badge';
 
+    // 1. Cold load / Pending state when checklist isn't confirmed
     if (!chk1 || !chk2) {
-      badge.classList.add('danger');
-      bTitle.innerText = '🔴 ALERT: Manual Checks Failed';
-      bDesc.innerText = 'ASIC Check #1 or #2 incomplete. Confirm account setup and loan linking in bank app.';
-      savedEl.innerText = '$0.00 (Unlinked)';
-      actionBox.style.display = 'block';
-      updateMessageTemplate();
+      badge.classList.add('info');
+      bTitle.innerHTML = '<span role="img" aria-label="Blue info indicator">ℹ️</span> CHECKLIST PENDING';
+      bDesc.innerText = 'Complete checks #1 & #2 above to confirm account setup and linking.';
+      savedEl.innerText = formatAUD(expectedFull - expectedWithOffset);
+      actionBox.style.display = 'none';
       return;
     }
 
     if (offset <= 0) {
       badge.classList.add('warning');
-      bTitle.innerText = 'No Offset Entered';
+      bTitle.innerHTML = '<span role="img" aria-label="Yellow warning indicator">⚠️</span> NO OFFSET ENTERED';
       bDesc.innerText = 'Enter an offset balance above zero to check linking status.';
       savedEl.innerText = formatAUD(0);
       actionBox.style.display = 'none';
@@ -300,22 +367,24 @@
     const diffFull = Math.abs(actual - expectedFull);
     const potentialSavings = expectedFull - expectedWithOffset;
 
-    if (diffOffset <= Math.max(15, potentialSavings * 0.15)) {
+    const dynamicTolerance = Math.max(15, potentialSavings * toleranceRatio);
+
+    if (diffOffset <= dynamicTolerance) {
       badge.classList.add('safe');
-      bTitle.innerText = '🟢 SAFE: Offset Applied';
+      bTitle.innerHTML = '<span role="img" aria-label="Green safe indicator">🟢</span> SAFE: Offset Applied';
       bDesc.innerText = 'Your interest charged matches expected offset calculations.';
       savedEl.innerText = formatAUD(expectedFull - actual);
       actionBox.style.display = 'none';
-    } else if (diffFull <= Math.max(15, potentialSavings * 0.15) || actual >= expectedFull - 5) {
+    } else if (diffFull <= dynamicTolerance || actual >= expectedFull - 5) {
       badge.classList.add('danger');
-      bTitle.innerText = '🔴 ALERT: Offset Likely Failed';
+      bTitle.innerHTML = '<span role="img" aria-label="Red alert indicator">🔴</span> ALERT: Offset Likely Failed';
       bDesc.innerText = 'Interest charged reflects full loan balance without offset savings!';
       savedEl.innerText = '$0.00 (Overcharged)';
       actionBox.style.display = 'block';
       updateMessageTemplate();
     } else {
       badge.classList.add('warning');
-      bTitle.innerText = '🟡 UNCERTAIN / PARTIAL';
+      bTitle.innerHTML = '<span role="img" aria-label="Yellow warning indicator">🟡</span> UNCERTAIN / PARTIAL';
       bDesc.innerText = 'Interest differs from static balance estimates (likely daily balance shifts).';
       savedEl.innerText = formatAUD(Math.max(0, expectedFull - actual));
       actionBox.style.display = 'none';
