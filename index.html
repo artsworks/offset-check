@@ -1,19 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Google tag (gtag.js) -->
+  <!-- Google Analytics Tag -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-TKKZS8E7BN"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-
     gtag('config', 'G-TKKZS8E7BN');
   </script>
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mortgage Offset Health Check</title>
+  <title>ASIC-Inspired Mortgage Offset Health Check</title>
   <style>
     :root {
       --bg: #0f172a;
@@ -29,25 +28,32 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     body { background-color: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 20px; min-height: 100vh; }
-    .container { width: 100%; max-width: 520px; display: flex; flex-direction: column; gap: 16px; }
+    .container { width: 100%; max-width: 580px; display: flex; flex-direction: column; gap: 16px; }
     
     .card { background-color: var(--card-bg); border-radius: 12px; padding: 20px; border: 1px solid var(--border); }
     h1 { font-size: 1.25rem; font-weight: 700; text-align: center; margin-bottom: 4px; }
-    .subtitle { font-size: 0.85rem; color: var(--muted); text-align: center; margin-bottom: 16px; }
+    .subtitle { font-size: 0.85rem; color: var(--muted); text-align: center; margin-bottom: 16px; line-height: 1.4; }
+    .subtitle a { color: var(--accent); text-decoration: underline; }
+
+    .checklist-box { background: #0f172a; border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin-bottom: 16px; }
+    .checklist-title { font-size: 0.9rem; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+    .checklist-item { display: flex; align-items: flex-start; gap: 10px; font-size: 0.85rem; color: var(--muted); margin-bottom: 8px; cursor: pointer; }
+    .checklist-item input { width: 16px; height: 16px; margin-top: 2px; accent-color: var(--accent); cursor: pointer; }
 
     .input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
     label { font-size: 0.85rem; font-weight: 600; color: var(--muted); }
     .input-wrapper { position: relative; display: flex; align-items: center; }
     .prefix { position: absolute; left: 12px; color: var(--muted); font-weight: 600; }
-    input { width: 100%; padding: 10px 12px 10px 28px; background: #0f172a; border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 1rem; font-weight: 600; outline: none; }
-    input:focus { border-color: var(--accent); }
+    input[type="text"], select { width: 100%; padding: 10px 12px 10px 28px; background: #0f172a; border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 1rem; font-weight: 600; outline: none; }
+    select { padding-left: 12px; }
+    input:focus, select:focus { border-color: var(--accent); }
     input.no-prefix { padding-left: 12px; }
 
     .day-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 4px; }
     .btn-day { background: #0f172a; border: 1px solid var(--border); color: var(--text); padding: 8px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
     .btn-day.active { background: var(--accent); border-color: var(--accent); }
 
-    .status-badge { padding: 16px; border-radius: 8px; text-align: center; margin-top: 8px; display: none; }
+    .status-badge { padding: 16px; border-radius: 8px; text-align: center; margin-top: 12px; display: none; }
     .status-badge.safe { background: rgba(34, 197, 94, 0.15); border: 1px solid var(--success); color: var(--success); }
     .status-badge.danger { background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger); color: var(--danger); }
     .status-badge.warning { background: rgba(245, 158, 11, 0.15); border: 1px solid var(--warning); color: var(--warning); }
@@ -60,16 +66,43 @@
     .results-table tr:last-child td { border-bottom: none; }
     .val { text-align: right; font-weight: 700; }
 
-    .footer-note { font-size: 0.75rem; color: var(--muted); text-align: center; margin-top: 8px; line-height: 1.3; }
+    .action-box { display: none; background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); border-radius: 8px; padding: 14px; margin-top: 16px; font-size: 0.85rem; }
+    .action-title { font-weight: 700; color: var(--danger); margin-bottom: 6px; }
+    .template-area { background: #0f172a; border: 1px solid var(--border); border-radius: 6px; padding: 10px; font-family: monospace; font-size: 0.78rem; color: var(--text); margin: 8px 0; white-space: pre-wrap; word-break: break-word; }
+    .btn-copy { background: var(--accent); border: none; color: white; padding: 6px 12px; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 0.78rem; }
+    .resources { margin-top: 10px; font-size: 0.8rem; color: var(--muted); }
+    .resources a { color: var(--accent); text-decoration: underline; }
+
+    .disclosure-paragraph { font-size: 0.78rem; color: var(--muted); line-height: 1.4; border-top: 1px solid var(--border); padding-top: 12px; margin-top: 16px; }
   </style>
 </head>
 <body>
 
 <div class="container">
   <div class="card">
-    <h1>Offset Account Health Check</h1>
-    <div class="subtitle">Quick monthly audit based on ASIC 26-173MR guidelines</div>
+    <h1>ASIC-Inspired Offset Health Check</h1>
+    <div class="subtitle">
+      Inspired by <a href="https://www.asic.gov.au/about-asic/news-centre/find-a-media-release/2026-releases/26-173mr-hidden-mortgage-offset-failures-costing-australians-millions-in-lost-interest-savings/" target="_blank">ASIC 26-173MR</a> and <a href="https://www.asic.gov.au/regulatory-resources/find-a-document/reports/rep-837-offsets-out-of-mind-banks-fall-short-on-mortgage-offset-account-promises/" target="_blank">Report 837</a>.
+    </div>
 
+    <!-- ASIC Checklist -->
+    <div class="checklist-box">
+      <div class="checklist-title">ASIC Customer Check Checklist</div>
+      <label class="checklist-item">
+        <input type="checkbox" id="chk1" onchange="calculate()">
+        <span><strong>Check #1:</strong> Offset account has been opened and set up.</span>
+      </label>
+      <label class="checklist-item">
+        <input type="checkbox" id="chk2" onchange="calculate()">
+        <span><strong>Check #2:</strong> Offset account is linked to the correct home loan.</span>
+      </label>
+      <label class="checklist-item">
+        <input type="checkbox" id="chk3" checked disabled>
+        <span><strong>Check #3:</strong> Account is receiving expected interest benefit (Math Check below).</span>
+      </label>
+    </div>
+
+    <!-- Math Check Inputs -->
     <div class="input-group">
       <label>Average Home Loan Balance</label>
       <div class="input-wrapper">
@@ -126,13 +159,40 @@
         <td class="val" id="expFull">$0.00</td>
       </tr>
       <tr>
-        <td>Estimated Interest Saved This Month:</td>
+        <td>Variance ($ Delta vs Expected Offset):</td>
+        <td class="val" id="deltaDollar">$0.00</td>
+      </tr>
+      <tr>
+        <td>Variance (% Delta):</td>
+        <td class="val" id="deltaPercent">0.0%</td>
+      </tr>
+      <tr>
+        <td>Estimated Monthly Savings:</td>
         <td class="val" id="savedAmount" style="color: var(--success);">$0.00</td>
       </tr>
     </table>
-  </div>
-  <div class="footer-note">
-    Runs 100% locally in your browser. Calculations assume daily accrued interest ($Balance \times Rate / 365 \times Days$).
+
+    <!-- Action / Complaint Box on ALERT -->
+    <div id="actionBox" class="action-box">
+      <div class="action-title">Potential Failure Detected — Take Action</div>
+      <p style="margin-bottom: 8px;">Select failure scenario identified in ASIC REP 837:</p>
+      <select id="failureType" onchange="updateMessageTemplate()">
+        <option value="unlinked">55% Case: Account opened but not linked to loan</option>
+        <option value="unopened">22% Case: Account requested but never opened</option>
+        <option value="late">14% Case: Account linked outside communicated timeframe</option>
+      </select>
+      
+      <div class="template-area" id="templateText"></div>
+      <button class="btn-copy" onclick="copyTemplate()">Copy Message to Clipboard</button>
+
+      <div class="resources">
+        <strong>Next Steps:</strong> Submit via your bank's secure message app. If unresolved within 30 days, lodge a free dispute with <a href="https://www.afca.org.au/" target="_blank">AFCA</a> or review <a href="https://moneysmart.gov.au/home-loans/mortgage-offset-accounts" target="_blank">Moneysmart Guidance</a>.
+      </div>
+    </div>
+
+    <div class="disclosure-paragraph">
+      <strong>Note & Limitations:</strong> This audit uses single-month average snapshot estimates. Exact daily bank calculations may vary due to mid-cycle balance changes, multiple linked offset accounts, non-standard statement cut-off dates, or leap-year day counts ($365$ vs $366$). This tool runs 100% locally in your browser. Anonymous usage metrics are tracked via Google Analytics for performance logging.
+    </div>
   </div>
 </div>
 
@@ -163,7 +223,33 @@
     input.value = parts.join('.');
   }
 
+  function updateMessageTemplate() {
+    const failureType = document.getElementById('failureType').value;
+    const loan = document.getElementById('loanBalance').value;
+    const offset = document.getElementById('offsetBalance').value;
+    const actual = document.getElementById('actualCharged').value;
+    const expected = document.getElementById('expOffset').innerText;
+    
+    let reason = "it appears my offset account is opened but not actively linked to my home loan.";
+    if (failureType === 'unopened') reason = "my requested offset account was never properly established.";
+    if (failureType === 'late') reason = "my offset account linking was delayed outside the communicated timeframe.";
+
+    const text = `Dear Customer Support,\n\nI am requesting an urgent audit of my home loan interest charged for the recent billing period (${selectedDays} days).\n\nBased on my calculations (${loan} loan balance, ${offset} offset balance), my charged interest was ${actual}, whereas expected interest with offset applied is ${expected}.\n\nAs highlighted in ASIC Media Release 26-173MR, ${reason}\n\nPlease confirm: 1) Correct offset linking status, 2) Recalculation of interest charged, and 3) Remediation/refund of overcharged interest if applicable.\n\nThank you.`;
+
+    document.getElementById('templateText').innerText = text;
+  }
+
+  function copyTemplate() {
+    const text = document.getElementById('templateText').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      alert("Message copied to clipboard!");
+    });
+  }
+
   function calculate() {
+    const chk1 = document.getElementById('chk1').checked;
+    const chk2 = document.getElementById('chk2').checked;
+
     const loan = parseFormattedNumber(document.getElementById('loanBalance').value);
     const offset = parseFormattedNumber(document.getElementById('offsetBalance').value);
     const rate = parseFormattedNumber(document.getElementById('interestRate').value) / 100;
@@ -176,19 +262,37 @@
     document.getElementById('expOffset').innerText = formatAUD(expectedWithOffset);
     document.getElementById('expFull').innerText = formatAUD(expectedFull);
 
+    const delta = actual - expectedWithOffset;
+    const pctDelta = expectedWithOffset > 0 ? (delta / expectedWithOffset) * 100 : 0;
+
+    document.getElementById('deltaDollar').innerText = (delta > 0 ? '+' : '') + formatAUD(delta);
+    document.getElementById('deltaPercent').innerText = (pctDelta > 0 ? '+' : '') + pctDelta.toFixed(1) + '%';
+
     const badge = document.getElementById('statusBadge');
     const bTitle = document.getElementById('badgeTitle');
     const bDesc = document.getElementById('badgeDesc');
     const savedEl = document.getElementById('savedAmount');
+    const actionBox = document.getElementById('actionBox');
 
     badge.style.display = 'block';
     badge.className = 'status-badge';
+
+    if (!chk1 || !chk2) {
+      badge.classList.add('danger');
+      bTitle.innerText = '🔴 ALERT: Manual Checks Failed';
+      bDesc.innerText = 'ASIC Check #1 or #2 incomplete. Confirm account setup and loan linking in bank app.';
+      savedEl.innerText = '$0.00 (Unlinked)';
+      actionBox.style.display = 'block';
+      updateMessageTemplate();
+      return;
+    }
 
     if (offset <= 0) {
       badge.classList.add('warning');
       bTitle.innerText = 'No Offset Entered';
       bDesc.innerText = 'Enter an offset balance above zero to check linking status.';
       savedEl.innerText = formatAUD(0);
+      actionBox.style.display = 'none';
       return;
     }
 
@@ -201,16 +305,20 @@
       bTitle.innerText = '🟢 SAFE: Offset Applied';
       bDesc.innerText = 'Your interest charged matches expected offset calculations.';
       savedEl.innerText = formatAUD(expectedFull - actual);
+      actionBox.style.display = 'none';
     } else if (diffFull <= Math.max(15, potentialSavings * 0.15) || actual >= expectedFull - 5) {
       badge.classList.add('danger');
       bTitle.innerText = '🔴 ALERT: Offset Likely Failed';
       bDesc.innerText = 'Interest charged reflects full loan balance without offset savings!';
       savedEl.innerText = '$0.00 (Overcharged)';
+      actionBox.style.display = 'block';
+      updateMessageTemplate();
     } else {
       badge.classList.add('warning');
       bTitle.innerText = '🟡 UNCERTAIN / PARTIAL';
-      bDesc.innerText = 'Interest is lower than full rate, but differs from static balance estimates.';
+      bDesc.innerText = 'Interest differs from static balance estimates (likely daily balance shifts).';
       savedEl.innerText = formatAUD(Math.max(0, expectedFull - actual));
+      actionBox.style.display = 'none';
     }
   }
 
