@@ -51,16 +51,21 @@
     label { font-size: 0.85rem; font-weight: 600; color: var(--muted); }
     .input-wrapper { position: relative; display: flex; align-items: center; }
     .prefix { position: absolute; left: 12px; color: var(--muted); font-weight: 600; }
-    input[type="text"], input[type="number"], select { width: 100%; padding: 10px 12px 10px 28px; background: #0f172a; border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 1rem; font-weight: 600; outline: none; }
+    input[type="text"], input[type="number"], select { width: 100%; padding: 10px 12px 10px 28px; background: #0f172a; border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 1rem; font-weight: 600; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
     select { padding-left: 12px; }
-    input:focus, select:focus { border-color: var(--accent); }
+    input:hover, select:hover { border-color: #475569; }
+    input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25); }
     input.no-prefix { padding-left: 12px; }
 
     .day-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 4px; }
-    .btn-day { background: #0f172a; border: 1px solid var(--border); color: var(--text); padding: 8px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+    .btn-day { background: #0f172a; border: 1px solid var(--border); color: var(--text); padding: 8px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: background-color 0.2s, border-color 0.2s, transform 0.1s; }
+    .btn-day:hover { border-color: var(--accent); }
+    .btn-day:active { transform: scale(0.96); }
     .btn-day.active { background: var(--accent); border-color: var(--accent); }
 
-    .status-badge { padding: 16px; border-radius: 8px; text-align: center; margin-top: 12px; }
+    .status-badge { padding: 16px; border-radius: 8px; text-align: center; margin-top: 12px; transition: background-color 0.2s, color 0.2s, border-color 0.2s; }
+    .status-badge.pop { animation: badge-pop 0.3s ease-out; }
+    @keyframes badge-pop { 40% { transform: scale(1.03); } }
     .status-badge.info { background: rgba(56, 189, 248, 0.15); border: 1px solid var(--info); color: var(--info); }
     .status-badge.safe { background: rgba(34, 197, 94, 0.15); border: 1px solid var(--success); color: var(--success); }
     .status-badge.danger { background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger); color: var(--danger); }
@@ -68,6 +73,15 @@
     
     .badge-title { font-size: 1.1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
     .badge-desc { font-size: 0.85rem; opacity: 0.9; }
+
+    .gauge { margin-top: 14px; }
+    .gauge-track { position: relative; height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--success), var(--warning) 50%, var(--danger)); }
+    .gauge-marker { position: absolute; inset: 0; transition: transform 0.2s ease-out, opacity 0.2s; }
+    .gauge-marker::before { content: ""; position: absolute; left: -6px; top: -4px; width: 14px; height: 14px; border-radius: 50%; background: var(--text); border: 2px solid var(--bg); }
+    .gauge-labels { display: flex; justify-content: space-between; margin-top: 6px; font-size: 0.72rem; color: var(--muted); }
+    .delta-ok { color: var(--success); }
+    .delta-bad { color: var(--danger); }
+    #deltaDollar { transition: color 0.2s; }
 
     .results-table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 0.85rem; }
     .results-table td { padding: 8px 0; border-bottom: 1px solid var(--border); }
@@ -80,6 +94,11 @@
     .btn-copy { background: var(--accent); border: none; color: white; padding: 6px 12px; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 0.78rem; }
     .resources { margin-top: 10px; font-size: 0.8rem; color: var(--muted); }
     .resources a { color: var(--accent); text-decoration: underline; }
+
+    @media (prefers-reduced-motion: reduce) {
+      input, select, .btn-day, .status-badge, .gauge-marker, #deltaDollar { transition: none; }
+      .status-badge.pop { animation: none; }
+    }
 
     .disclosure-paragraph { font-size: 0.78rem; color: var(--muted); line-height: 1.4; border-top: 1px solid var(--border); padding-top: 12px; margin-top: 16px; }
   </style>
@@ -163,7 +182,7 @@
         <div class="grid-2">
           <div>
             <label for="toleranceBand">Tolerance Buffer</label>
-            <select id="toleranceBand" onchange="calculate()">
+            <select id="toleranceBand" autocomplete="off" onchange="calculate()">
               <option value="0.05">Strict (5%)</option>
               <option value="0.15" selected>Standard (15%)</option>
               <option value="0.25">Relaxed (25%)</option>
@@ -171,7 +190,7 @@
           </div>
           <div>
             <label for="yearBasis">Day-Count Basis</label>
-            <select id="yearBasis" onchange="calculate()">
+            <select id="yearBasis" autocomplete="off" onchange="calculate()">
               <option value="365" selected>365 Days (Standard)</option>
               <option value="366">366 Days (Leap Year)</option>
             </select>
@@ -179,7 +198,7 @@
         </div>
         <div>
           <label for="activeDays">Days Offset Active in Cycle (Mid-Month Linking)</label>
-          <input type="number" id="activeDays" value="31" class="no-prefix" min="1" max="31">
+          <input type="number" id="activeDays" value="31" class="no-prefix" min="1" max="31" autocomplete="off">
         </div>
       </div>
     </details>
@@ -196,6 +215,11 @@
     <div id="statusBadge" class="status-badge info" aria-live="polite">
       <div id="badgeTitle" class="badge-title">CHECKLIST PENDING</div>
       <div id="badgeDesc" class="badge-desc">Complete checks #1 &amp; #2 above to run full audit.</div>
+    </div>
+
+    <div class="gauge" aria-hidden="true">
+      <div class="gauge-track"><div class="gauge-marker" id="gaugeMarker"></div></div>
+      <div class="gauge-labels"><span>Expected with offset</span><span>Without offset</span></div>
     </div>
 
     <table class="results-table">
@@ -307,6 +331,39 @@
     });
   }
 
+  let lastStatus = null;
+
+  function readActiveDays(commit) {
+    const el = document.getElementById('activeDays');
+    const raw = el.value.trim();
+    const n = parseInt(raw, 10);
+    const clamped = Number.isFinite(n) ? Math.min(selectedDays, Math.max(1, n)) : selectedDays;
+    if ((raw !== '' || commit) && String(clamped) !== raw) el.value = clamped;
+    return clamped;
+  }
+
+  function setStatus(key, kind, icon, title, desc) {
+    const badge = document.getElementById('statusBadge');
+    const popping = badge.classList.contains('pop');
+    badge.className = 'status-badge ' + kind + (popping ? ' pop' : '');
+    if (lastStatus !== null && lastStatus !== key) {
+      badge.classList.remove('pop');
+      void badge.offsetWidth;
+      badge.classList.add('pop');
+    }
+    lastStatus = key;
+    document.getElementById('badgeTitle').innerHTML = icon + ' ' + title;
+    document.getElementById('badgeDesc').innerText = desc;
+  }
+
+  const ICON = {
+    info: '<span role="img" aria-label="Blue info indicator">ℹ️</span>',
+    warn: '<span role="img" aria-label="Yellow warning indicator">⚠️</span>',
+    partial: '<span role="img" aria-label="Yellow warning indicator">🟡</span>',
+    safe: '<span role="img" aria-label="Green safe indicator">🟢</span>',
+    alert: '<span role="img" aria-label="Red alert indicator">🔴</span>'
+  };
+
   function calculate() {
     const chk1 = document.getElementById('chk1').checked;
     const chk2 = document.getElementById('chk2').checked;
@@ -318,7 +375,7 @@
 
     const toleranceRatio = parseFloat(document.getElementById('toleranceBand').value) || 0.15;
     const yearBasis = parseInt(document.getElementById('yearBasis').value, 10) || 365;
-    const activeDays = Math.min(selectedDays, Math.max(0, parseInt(document.getElementById('activeDays').value, 10) || selectedDays));
+    const activeDays = readActiveDays(false);
 
     // Mid-cycle / late linking formula:
     // Interest = Loan interest for full period minus offset savings for active days
@@ -326,70 +383,80 @@
     const dailyOffsetSavings = offset * (rate / yearBasis);
     const expectedWithOffset = Math.max(0, (dailyFullInterest * selectedDays) - (dailyOffsetSavings * activeDays));
     const expectedFull = dailyFullInterest * selectedDays;
+    const potentialSavings = expectedFull - expectedWithOffset;
+    const dynamicTolerance = Math.max(15, expectedWithOffset * 0.02, potentialSavings * toleranceRatio);
+    const hasActual = actual > 0;
 
     document.getElementById('expOffset').innerText = formatAUD(expectedWithOffset);
     document.getElementById('expFull').innerText = formatAUD(expectedFull);
 
     const delta = actual - expectedWithOffset;
     const pctDelta = expectedWithOffset > 0 ? (delta / expectedWithOffset) * 100 : 0;
+    const deltaEl = document.getElementById('deltaDollar');
 
-    document.getElementById('deltaDollar').innerText = (delta > 0 ? '+' : '') + formatAUD(delta);
-    document.getElementById('deltaPercent').innerText = (pctDelta > 0 ? '+' : '') + pctDelta.toFixed(1) + '%';
+    deltaEl.innerText = hasActual ? (delta > 0 ? '+' : '') + formatAUD(delta) : '—';
+    deltaEl.className = 'val' + (hasActual ? (delta > dynamicTolerance ? ' delta-bad' : ' delta-ok') : '');
+    document.getElementById('deltaPercent').innerText = hasActual ? (pctDelta > 0 ? '+' : '') + pctDelta.toFixed(1) + '%' : '—';
 
-    const badge = document.getElementById('statusBadge');
-    const bTitle = document.getElementById('badgeTitle');
-    const bDesc = document.getElementById('badgeDesc');
+    const marker = document.getElementById('gaugeMarker');
+    if (hasActual && potentialSavings > 0) {
+      const pos = Math.min(1, Math.max(0, (actual - expectedWithOffset) / potentialSavings));
+      marker.style.transform = 'translateX(' + (pos * 100).toFixed(2) + '%)';
+      marker.style.opacity = '1';
+    } else {
+      marker.style.opacity = '0';
+    }
+
     const savedEl = document.getElementById('savedAmount');
     const actionBox = document.getElementById('actionBox');
-
-    badge.className = 'status-badge';
+    actionBox.style.display = 'none';
 
     // 1. Cold load / Pending state when checklist isn't confirmed
     if (!chk1 || !chk2) {
-      badge.classList.add('info');
-      bTitle.innerHTML = '<span role="img" aria-label="Blue info indicator">ℹ️</span> CHECKLIST PENDING';
-      bDesc.innerText = 'Complete checks #1 & #2 above to confirm account setup and linking.';
-      savedEl.innerText = formatAUD(expectedFull - expectedWithOffset);
-      actionBox.style.display = 'none';
+      setStatus('checklist', 'info', ICON.info, 'CHECKLIST PENDING', 'Complete checks #1 & #2 above to confirm account setup and linking.');
+      savedEl.innerText = formatAUD(potentialSavings);
       return;
     }
 
     if (offset <= 0) {
-      badge.classList.add('warning');
-      bTitle.innerHTML = '<span role="img" aria-label="Yellow warning indicator">⚠️</span> NO OFFSET ENTERED';
-      bDesc.innerText = 'Enter an offset balance above zero to check linking status.';
+      setStatus('no-offset', 'warning', ICON.warn, 'NO OFFSET ENTERED', 'Enter an offset balance above zero to check linking status.');
       savedEl.innerText = formatAUD(0);
-      actionBox.style.display = 'none';
+      return;
+    }
+
+    if (!hasActual) {
+      setStatus('no-actual', 'info', ICON.info, 'ENTER YOUR CHARGED INTEREST', 'Enter the interest your bank charged this cycle to run the check.');
+      savedEl.innerText = formatAUD(potentialSavings);
       return;
     }
 
     const diffOffset = Math.abs(actual - expectedWithOffset);
     const diffFull = Math.abs(actual - expectedFull);
-    const potentialSavings = expectedFull - expectedWithOffset;
-
-    const dynamicTolerance = Math.max(15, potentialSavings * toleranceRatio);
 
     if (diffOffset <= dynamicTolerance) {
-      badge.classList.add('safe');
-      bTitle.innerHTML = '<span role="img" aria-label="Green safe indicator">🟢</span> SAFE: Offset Applied';
-      bDesc.innerText = 'Your interest charged matches expected offset calculations.';
-      savedEl.innerText = formatAUD(expectedFull - actual);
-      actionBox.style.display = 'none';
-    } else if (diffFull <= dynamicTolerance || actual >= expectedFull - 5) {
-      badge.classList.add('danger');
-      bTitle.innerHTML = '<span role="img" aria-label="Red alert indicator">🔴</span> ALERT: Offset Likely Failed';
-      bDesc.innerText = 'Interest charged reflects full loan balance without offset savings!';
+      setStatus('safe', 'safe', ICON.safe, 'SAFE: Offset Applied', potentialSavings > dynamicTolerance
+        ? 'Your interest charged matches expected offset calculations.'
+        : 'Charged interest matches, but the offset saving is within the tolerance band, so a linking failure can\'t be ruled out.');
+      savedEl.innerText = formatAUD(Math.max(0, expectedFull - actual));
+    } else if (actual < expectedWithOffset - dynamicTolerance) {
+      setStatus('under', 'warning', ICON.warn, 'LOWER THAN EXPECTED', 'Charged less than expected. Check your inputs: balances, rate, cycle days and active days.');
+      savedEl.innerText = formatAUD(potentialSavings);
+    } else if (diffFull <= dynamicTolerance || actual >= expectedFull - Math.max(5, potentialSavings * 0.2)) {
+      setStatus('alert', 'danger', ICON.alert, 'ALERT: Offset Likely Failed', 'Interest charged reflects full loan balance without offset savings!');
       savedEl.innerText = '$0.00 (Overcharged)';
       actionBox.style.display = 'block';
       updateMessageTemplate();
     } else {
-      badge.classList.add('warning');
-      bTitle.innerHTML = '<span role="img" aria-label="Yellow warning indicator">🟡</span> UNCERTAIN / PARTIAL';
-      bDesc.innerText = 'Interest differs from static balance estimates (likely daily balance shifts).';
+      setStatus('partial', 'warning', ICON.partial, 'UNCERTAIN / PARTIAL', 'Interest differs from static balance estimates (likely daily balance shifts).');
       savedEl.innerText = formatAUD(Math.max(0, expectedFull - actual));
-      actionBox.style.display = 'none';
     }
   }
+
+  document.getElementById('statusBadge').addEventListener('animationend', e => e.currentTarget.classList.remove('pop'));
+  document.getElementById('activeDays').addEventListener('blur', () => {
+    readActiveDays(true);
+    calculate();
+  });
 
   const monetaryInputs = ['loanBalance', 'offsetBalance', 'actualCharged'];
   
